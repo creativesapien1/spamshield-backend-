@@ -11,7 +11,13 @@ from scorer import calculate_behaviour_score, detect_spam_in_text
 from audio_classifier import transcribe_audio
 from gatekeeper import screen_caller, get_opening_greeting
 
-app = FastAPI(title="SpamShield API", version="1.0.0")
+app = FastAPI(
+    title="SpamShield API",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
+)
 
 # Allow React dashboard and Android app to call this API
 app.add_middleware(
@@ -20,6 +26,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/")
+def root():
+    return {
+        "status": "✅ SpamShield API is live",
+        "version": "1.0.0",
+        "docs": "/docs"
+    }
 
 # Create database tables on startup
 @app.on_event("startup")
@@ -186,6 +199,23 @@ def recent_reports(limit: int = 20, db: Session = Depends(get_db)):
         }
         for r in reports
     ]
+
+@app.get("/")
+def root():
+    return {
+        "status": "SpamShield API is running",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "endpoints": [
+            "/api/check-number",
+            "/api/report-spam", 
+            "/api/analyze-audio",
+            "/api/gatekeeper/greeting",
+            "/api/gatekeeper/respond",
+            "/api/stats",
+            "/api/recent-reports"
+        ]
+    }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

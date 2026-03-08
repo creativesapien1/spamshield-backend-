@@ -3,12 +3,15 @@ import os
 import json
 import re
 
+# API key must be set as environment variable on Render
+# Get a free key at: https://aistudio.google.com/app/apikey
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY environment variable not set")
+
 genai.configure(api_key=GEMINI_API_KEY)
 
-# gemini-2.0-flash is the current free tier model
+# gemini-2.0-flash — free tier, 15 req/min, 1500/day
 model = genai.GenerativeModel("gemini-2.0-flash")
 
 GATEKEEPER_SYSTEM_PROMPT = """
@@ -32,6 +35,10 @@ You MUST respond with valid JSON only, no markdown, no extra text:
 """
 
 def screen_caller(conversation_history: list, caller_statement: str) -> dict:
+    """
+    Takes what the caller said and decides what to do.
+    conversation_history: list of {"role": "caller"/"assistant", "text": "..."}
+    """
     history_text = "\n".join([
         f"{msg['role'].upper()}: {msg['text']}"
         for msg in conversation_history
@@ -71,6 +78,7 @@ Respond with JSON only:"""
         }
 
 def get_opening_greeting() -> str:
+    """What the AI says when it first picks up."""
     return (
         "Namaste! This call is being screened by SpamShield. "
         "Please state your name and the reason for your call."

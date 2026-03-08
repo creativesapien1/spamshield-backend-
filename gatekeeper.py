@@ -3,7 +3,9 @@ import os
 import json
 import re
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAzIB0rodAieTLsNKByABb1yTsGrWz9qNA")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable not set")
 genai.configure(api_key=GEMINI_API_KEY)
 
 # gemini-2.0-flash is the current free tier model
